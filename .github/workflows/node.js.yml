@@ -12,5 +12,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.2
       - name: "Hello World"
         run: echo "hello world"
+      - name: Post text to a Slack channel
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: ${{ secrets.SLACK_CHANNEL_ID }}
+            text: >
+              🚀 GitHub Actions ejecutó un workflow desde la rama `${{ github.ref_name }}`  
+              ✅ Estado: *${{ job.status }}*  
+              📦 Repositorio: ${{ github.repository }}  
+              🔗 Ver detalles: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
