@@ -1,41 +1,57 @@
-name: Node.js CI with SonarCloud
+name: Node.js CI + SonarCloud + Slack + Build Vite
 
 on:
   push:
     branches: ["main"]
   pull_request:
-    types: [opened, synchronize, reopened]
+    branches: ["main"]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4.2.2
+      - name: Checkout código
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install dependencies
+      - name: Cache de dependencias
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Instalar dependencias
         run: npm ci
 
-      - name: Run tests with coverage
+      - name: Ejecutar tests con cobertura
         run: npm run test -- --coverage
-        env:
-          CI: true
 
-      - name: Run SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+      - name: Analizar con SonarCloud
+        uses: SonarSource/sonarcloud-github-action@v2
         with:
-          args: >
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          projectBaseDir: .
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Post text to a Slack channel
+      - name: Build de producción con Vite
+        run: npm run build
+
+      - name: Servidor local con Vite (modo preview)
+        run: |
+          npm install -g serve
+          npx vite preview --port 4173 &
+          sleep 5
+        env:
+          NODE_ENV: production
+
+      - name: Notificar en Slack
         uses: slackapi/slack-github-action@v2.1.0
         with:
           method: chat.postMessage
@@ -43,7 +59,7 @@ jobs:
           payload: |
             channel: ${{ secrets.SLACK_CHANNEL_ID }}
             text: >
-              🚀 GitHub Actions ejecutó un workflow desde la rama `${{ github.ref_name }}`  
+              🚀 CI ejecutado desde `${{ github.ref_name }}`  
               ✅ Estado: *${{ job.status }}*  
-              📦 Repositorio: ${{ github.repository }}  
+              📦 Repositorio: `${{ github.repository }}`  
               🔗 Ver detalles: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
