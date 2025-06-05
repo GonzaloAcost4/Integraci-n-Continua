@@ -31,7 +31,7 @@ jobs:
         run: npm ci
 
       - name: Ejecutar tests con cobertura
-        run: npm run test -- --coverage
+        run: npm run test 
 
       - name: Analizar con SonarCloud
         uses: SonarSource/sonarcloud-github-action@v2
