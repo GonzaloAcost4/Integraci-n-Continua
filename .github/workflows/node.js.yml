@@ -1,65 +1,63 @@
-name: Node.js CI + SonarCloud + Slack + Build Vite
+name: CI/CD + Deploy a Vercel
 
 on:
   push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+    branches:
+      - main
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
-  build-and-test:
+  Test-and-Deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout código
-        uses: actions/checkout@v4
+      # 1. Clona el repo
+      - uses: actions/checkout@v3
 
-      - name: Configurar Node.js
-        uses: actions/setup-node@v4
+      # 2. Instala Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: 20
 
-      - name: Cache de dependencias
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Instalar dependencias
+      # 3. Instala dependencias
+      - name: Install dependencies
         run: npm ci
 
+      # 4. Corre tests con cobertura
       - name: Ejecutar tests con cobertura
-        run: npm run test 
+        run: npx vitest run --coverage
 
+      # 5. Analiza en SonarCloud
       - name: Analizar con SonarCloud
-        uses: SonarSource/sonarcloud-github-action@v2
+        uses: SonarSource/sonarcloud-github-action@master
         with:
-          projectBaseDir: .
+          args: >
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ secrets.SONAR_ORG }}
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+      # 6. Build de producción con Vite
       - name: Build de producción con Vite
         run: npm run build
 
-      - name: Servidor local con Vite (modo preview)
-        run: |
-          npm install -g serve
-          npx vite preview --port 4173 &
-          sleep 5
-        env:
-          NODE_ENV: production
+      # 7. Instala CLI de Vercel
+      - name: Instalar Vercel CLI
+        run: npm install --global vercel
 
-      - name: Notificar en Slack
-        uses: slackapi/slack-github-action@v2.1.0
-        with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload: |
-            channel: ${{ secrets.SLACK_CHANNEL_ID }}
-            text: >
-              🚀 CI ejecutado desde `${{ github.ref_name }}`  
-              ✅ Estado: *${{ job.status }}*  
-              📦 Repositorio: `${{ github.repository }}`  
-              🔗 Ver detalles: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      # 8. Pull de configuración de Vercel
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      # 9. Build del proyecto para Vercel
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      # 10. Deploy del proyecto a Vercel
+      - name: Deploy Project Artifacts
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
