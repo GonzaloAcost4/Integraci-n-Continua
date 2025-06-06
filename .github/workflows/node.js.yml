@@ -26,7 +26,7 @@ jobs:
 
       # 4. Corre tests con cobertura
       - name: Ejecutar tests con cobertura
-        run: npx vitest run --coverage
+        run: npx vitest 
 
       # 5. Analiza en SonarCloud
 
