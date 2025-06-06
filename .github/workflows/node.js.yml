@@ -45,7 +45,7 @@ jobs:
               ❌ *Build falló* en `${{ github.workflow }}`.
               Autor: <${{ github.event.sender.html_url }}|${{ github.actor }}>
               Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>
-
+            • 🔗 <https://integraci-n-continua-rlf8y9fz5-gonzaloacost4s-projects.vercel.app/|Ver sitio en producción>
 
   sonarcloud:
     name: 🔍 Análisis SonarCloud
@@ -81,6 +81,7 @@ jobs:
               ⚠️ *SonarCloud reportó errores* en `${{ github.workflow }}`.
               Autor: <${{ github.event.sender.html_url }}|${{ github.actor }}>
               Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>
+            • 🔗 <https://integraci-n-continua-rlf8y9fz5-gonzaloacost4s-projects.vercel.app/|Ver sitio en producción>
 
 
   deploy:
@@ -127,3 +128,4 @@ jobs:
               Autor: <${{ github.event.sender.html_url }}|${{ github.actor }}>
               Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>
 
+            • 🔗 <https://integraci-n-continua-rlf8y9fz5-gonzaloacost4s-projects.vercel.app/|Ver sitio en producción>
