@@ -33,17 +33,19 @@ jobs:
       - name: Ejecutar tests con cobertura
         run: npm run test
 
-      - name: Notificación Slack (fallo en test/build)
+      - name: Notificar por Slack si falla build
         if: failure()
-        uses: ravsamhq/notify-slack-action@v2
+        uses: slackapi/slack-github-action@v2.1.0
         with:
-          status: ${{ job.status }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          notification_title: "{workflow} ha fallado en build/test"
-          message_format: ":x: *{workflow}* ha fallado en <{repo_url}|{repo}>"
-          notify_when: "failure"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFICATION }}
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: ${{ secrets.SLACK_CHANNEL_ID }}
+            text: |
+              ❌ *Build falló* en `${{ github.workflow }}`.
+              Autor: <${{ github.event.sender.html_url }}|${{ github.actor }}>
+              Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>
+
 
   sonarcloud:
     name: 🔍 Análisis SonarCloud
@@ -67,17 +69,19 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Notificación Slack (fallo en análisis)
+      - name: Notificar por Slack si falla SonarCloud
         if: failure()
-        uses: ravsamhq/notify-slack-action@v2
+        uses: slackapi/slack-github-action@v2.1.0
         with:
-          status: ${{ job.status }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          notification_title: "{workflow} falló en SonarCloud"
-          message_format: ":warning: *{workflow}* falló en SonarCloud en <{repo_url}|{repo}>"
-          notify_when: "failure"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFICATION }}
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: ${{ secrets.SLACK_CHANNEL_ID }}
+            text: |
+              ⚠️ *SonarCloud reportó errores* en `${{ github.workflow }}`.
+              Autor: <${{ github.event.sender.html_url }}|${{ github.actor }}>
+              Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>
+
 
   deploy:
     name: 🚀 Deploy a Vercel
@@ -109,15 +113,17 @@ jobs:
       - name: Deploy Project Artifacts
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Notificación Slack (éxito o fallo en deploy)
+      - name: Notificar resultado de Deploy en Slack
         if: always()
-        uses: ravsamhq/notify-slack-action@v2
+        uses: slackapi/slack-github-action@v2.1.0
         with:
-          status: ${{ job.status }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          notification_title: "{workflow} ha {status_message}"
-          message_format: "{emoji} *{workflow}* {status_message} en <{repo_url}|{repo}>"
-          footer: "Repositorio <{repo_url}|{repo}> | <{workflow_url}|Ver Workflow>"
-          notify_when: "failure, success"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFICATION }}
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: ${{ secrets.SLACK_CHANNEL_ID }}
+            text: |
+              🚀 *Deploy terminado* en `${{ github.workflow }}`
+              Estado: `${{ job.status }}`
+              Autor: <${{ github.event.sender.html_url }}|${{ github.actor }}>
+              Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>
+
