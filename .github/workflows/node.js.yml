@@ -1,93 +1,16 @@
-name: CI/CD + Deploy a Vercel
+name: CI + QA + Deploy
 
 on:
   push:
-    branches:
-      - main
+    branches: ["main"]
   pull_request:
-    branches:
-      - main
-
-permissions:
-  contents: read
-  id-token: write
+    branches: ["main"]
 
 jobs:
-  build:
-    name: 🔧 Build + Test
+  build-and-test:
+    name: 🧪 Build & Test
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Instalar dependencias
-        run: npm ci
-
-      - name: Ejecutar build del proyecto
-        run: npm run build
-
-      - name: Ejecutar tests con cobertura
-        run: npm run test
-
-      - name: Notificar por Slack si falla build
-        if: failure()
-        uses: slackapi/slack-github-action@v2.1.0
-        with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload: |
-            channel: ${{ secrets.SLACK_CHANNEL_ID }}
-            text: |
-              ❌ *Build falló* en `${{ github.workflow }}`.
-              Autor: <${{ github.event.sender.html_url }}|${{ github.actor }}>
-              Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>
-            • 🔗 <https://integraci-n-continua-rlf8y9fz5-gonzaloacost4s-projects.vercel.app/|Ver sitio en producción>
-
-  sonarcloud:
-    name: 🔍 Análisis SonarCloud
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Instalar dependencias
-        run: npm ci
-
-      - name: Ejecutar análisis SonarCloud
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      - name: Notificar por Slack si falla SonarCloud
-        if: failure()
-        uses: slackapi/slack-github-action@v2.1.0
-        with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload: |
-            channel: ${{ secrets.SLACK_CHANNEL_ID }}
-            text: |
-              ⚠️ *SonarCloud reportó errores* en `${{ github.workflow }}`.
-              Autor: <${{ github.event.sender.html_url }}|${{ github.actor }}>
-              Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>
-            • 🔗 <https://integraci-n-continua-rlf8y9fz5-gonzaloacost4s-projects.vercel.app/|Ver sitio en producción>
-
-
-  deploy:
-    name: 🚀 Deploy a Vercel
-    needs: sonarcloud
-    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
@@ -102,30 +25,80 @@ jobs:
       - name: Build de producción con Vite
         run: npm run build
 
-      - name: Instalar Vercel CLI
-        run: npm install --global vercel
+      - name: Ejecutar tests con Vitest
+        run: npx vitest --coverage
 
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build Project Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy Project Artifacts
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Notificar resultado de Deploy en Slack
+      - name: Notificar a Slack (build + test)
         if: always()
         uses: slackapi/slack-github-action@v2.1.0
         with:
           method: chat.postMessage
           token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload: |
-            channel: ${{ secrets.SLACK_CHANNEL_ID }}
-            text: |
-              🚀 *Deploy terminado* en `${{ github.workflow }}`
-              Estado: `${{ job.status }}`
-              Autor: <${{ github.event.sender.html_url }}|${{ github.actor }}>
-              Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>
+          payload: >
+            {
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
+              "text": "🧪 *Build & Test finalizado*\n• Estado: *${{ job.status }}*\n• Autor: <${{ github.event.sender.html_url }}|${{ github.actor }}>\n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>"
+            }
 
-            • 🔗 <https://integraci-n-continua-rlf8y9fz5-gonzaloacost4s-projects.vercel.app/|Ver sitio en producción>
+  sonarcloud:
+    name: 🔍 Análisis SonarCloud
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Notificar a Slack (SonarCloud)
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: >
+            {
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
+              "text": "🔎 *SonarCloud finalizado*\n• Estado: *${{ job.status }}*\n• Autor: <${{ github.event.sender.html_url }}|${{ github.actor }}>\n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>"
+            }
+
+  deploy:
+    name: 🚀 Deploy a Vercel
+    runs-on: ubuntu-latest
+    needs: sonarcloud
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Instalar Vercel CLI
+        run: npm install --global vercel
+
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build del proyecto para Vercel
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy del proyecto a producción
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Notificar a Slack (Deploy)
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: >
+            {
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
+              "text": "🚀 *Deploy completado en producción*\n• Estado: *${{ job.status }}*\n• Autor: <${{ github.event.sender.html_url }}|${{ github.actor }}>\n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>\n• 🔗 <https://integraci-n-continua-rlf8y9fz5-gonzaloacost4s-projects.vercel.app/|Ver sitio desplegado>"
+            }
