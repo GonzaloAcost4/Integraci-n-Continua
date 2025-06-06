@@ -4,11 +4,8 @@ on:
   push:
     branches:
       - main
-
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
+  pull_request:
+    types: [opened, synchronize, reopened]
 jobs:
   Test-and-Deploy:
     runs-on: ubuntu-latest
@@ -32,11 +29,13 @@ jobs:
         run: npx vitest run --coverage
 
       # 5. Analiza en SonarCloud
-      - name: Analizar con SonarCloud
-        uses: SonarSource/sonarcloud-github-action@master
+
+
+      - uses: actions/checkout@v4
         with:
-          args: >
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
