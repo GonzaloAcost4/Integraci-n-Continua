@@ -5,54 +5,119 @@ on:
     branches:
       - main
   pull_request:
-    types: [opened, synchronize, reopened]
-jobs:
-  Test-and-Deploy:
-    runs-on: ubuntu-latest
+    branches:
+      - main
 
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    name: 🔧 Build + Test
+    runs-on: ubuntu-latest
     steps:
-      # 1. Clona el repo
       - uses: actions/checkout@v3
 
-      # 2. Instala Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
 
-      # 3. Instala dependencias
-      - name: Install dependencies
+      - name: Instalar dependencias
         run: npm ci
 
-      # 4. Corre tests con cobertura
+      - name: Ejecutar build del proyecto
+        run: npm run build
+
       - name: Ejecutar tests con cobertura
-        run: npx vitest 
+        run: npm run test
 
-      # 5. Analiza en SonarCloud
+      - name: Notificación Slack (fallo en test/build)
+        if: failure()
+        uses: ravsamhq/notify-slack-action@v2
+        with:
+          status: ${{ job.status }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          notification_title: "{workflow} ha fallado en build/test"
+          message_format: ":x: *{workflow}* ha fallado en <{repo_url}|{repo}>"
+          notify_when: "failure"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFICATION }}
 
+  sonarcloud:
+    name: 🔍 Análisis SonarCloud
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: SonarCloud Scan
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Ejecutar análisis SonarCloud
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
+      - name: Notificación Slack (fallo en análisis)
+        if: failure()
+        uses: ravsamhq/notify-slack-action@v2
+        with:
+          status: ${{ job.status }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          notification_title: "{workflow} falló en SonarCloud"
+          message_format: ":warning: *{workflow}* falló en SonarCloud en <{repo_url}|{repo}>"
+          notify_when: "failure"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFICATION }}
 
-      # 6. Build de producción con Vite
+  deploy:
+    name: 🚀 Deploy a Vercel
+    needs: sonarcloud
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Instalar dependencias
+        run: npm ci
+
       - name: Build de producción con Vite
         run: npm run build
 
-      # 7. Instala CLI de Vercel
       - name: Instalar Vercel CLI
         run: npm install --global vercel
 
-      # 8. Pull de configuración de Vercel
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      # 9. Build del proyecto para Vercel
       - name: Build Project Artifacts
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
-      # 10. Deploy del proyecto a Vercel
       - name: Deploy Project Artifacts
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Notificación Slack (éxito o fallo en deploy)
+        if: always()
+        uses: ravsamhq/notify-slack-action@v2
+        with:
+          status: ${{ job.status }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          notification_title: "{workflow} ha {status_message}"
+          message_format: "{emoji} *{workflow}* {status_message} en <{repo_url}|{repo}>"
+          footer: "Repositorio <{repo_url}|{repo}> | <{workflow_url}|Ver Workflow>"
+          notify_when: "failure, success"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_NOTIFICATION }}
