@@ -1,0 +1,1 @@
+[![CI + QA + Deploy](https://github.com/GonzaloAcost4/Integraci-n-Continua/actions/workflows/node.js.yml/badge.svg)](https://github.com/GonzaloAcost4/Integraci-n-Continua/actions/workflows/node.js.yml)
