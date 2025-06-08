@@ -22,8 +22,6 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
-      - name: Build de producción con Vite
-        run: npm run build
 
       - name: Ejecutar tests con Vitest
         run: npx vitest --coverage
@@ -75,10 +73,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
+  
+      - name: Build de producción con Vite
+        run: npm run build
+        
       - name: Instalar dependencias
         run: npm ci
-
+      
       - name: Instalar Vercel CLI
         run: npm install --global vercel
 
