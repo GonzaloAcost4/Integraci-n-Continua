@@ -85,7 +85,7 @@ jobs:
         with:
           step: start
           token: ${{ secrets.GIT_TOKEN }}
-          env: release
+          env: Production
 
       - name: Instalar Vercel CLI
         run: npm install --global vercel
