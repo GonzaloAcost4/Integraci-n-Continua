@@ -68,7 +68,7 @@ jobs:
   deploy:
     name: Deploy a Vercel
     runs-on: ubuntu-latest
-    needs: build-and-test
+    needs: sonarcloud
 
     steps:
       - uses: actions/checkout@v3
