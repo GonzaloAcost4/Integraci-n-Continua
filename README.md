@@ -1,1 +1,4 @@
 [![CI + QA + Deploy](https://github.com/GonzaloAcost4/Integraci-n-Continua/actions/workflows/node.js.yml/badge.svg)](https://github.com/GonzaloAcost4/Integraci-n-Continua/actions/workflows/node.js.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=GonzaloAcost4_Integraci-n-Continua&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=GonzaloAcost4_Integraci-n-Continua)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=GonzaloAcost4_Integraci-n-Continua&metric=bugs)](https://sonarcloud.io/summary/new_code?id=GonzaloAcost4_Integraci-n-Continua)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=GonzaloAcost4_Integraci-n-Continua&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=GonzaloAcost4_Integraci-n-Continua)
