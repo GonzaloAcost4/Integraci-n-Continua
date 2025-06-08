@@ -3,9 +3,10 @@ name: CI + QA + Deploy
 on:
   push:
     branches: ["main"]
-  pull_request:
-    branches: ["main"]
-
+    
+permissions:
+  contents: read
+  deployments: write 
 jobs:
   build-and-test:
     name:  Build & Test
@@ -84,7 +85,7 @@ jobs:
         id: deployment
         with:
           step: start
-          token: ${{ secrets.GIT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           env: Production
 
       - name: Instalar Vercel CLI
