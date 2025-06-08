@@ -47,7 +47,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
+          
+      - name: Instalar dependencias
+        run: npm ci
+        
       - name: Ejecutar tests con Vitest
         run: npx vitest --coverage
 
