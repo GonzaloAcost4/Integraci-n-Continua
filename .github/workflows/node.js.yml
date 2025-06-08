@@ -22,7 +22,10 @@ jobs:
 
       - name: Instalar dependencias
         run: npm ci
-
+        
+      - name: Build con Vite
+        run: npm run build   
+        
       - name: Ejecutar tests con Vitest
         run: npx vitest 
 
@@ -50,6 +53,9 @@ jobs:
           
       - name: Instalar dependencias
         run: npm ci
+        
+      - name: Build de producción con Vite
+        run: npm run build   
         
       - name: Ejecutar tests con Vitest
         run: npx vitest --coverage
