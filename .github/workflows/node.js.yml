@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    name: 🧪 Build & Test
+    name:  Build & Test
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +41,7 @@ jobs:
             }
 
   sonarcloud:
-    name: 🔍 Análisis SonarCloud
+    name:  Análisis SonarCloud
     runs-on: ubuntu-latest
     needs: build-and-test
 
@@ -69,9 +69,9 @@ jobs:
             }
 
   deploy:
-    name: 🚀 Deploy a Vercel
+    name: Deploy a Vercel
     runs-on: ubuntu-latest
-    needs: sonarcloud
+    needs: build-and-test
 
     steps:
       - uses: actions/checkout@v3
