@@ -5,4 +5,4 @@
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=GonzaloAcost4_Integraci-n-Continua&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=GonzaloAcost4_Integraci-n-Continua)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GonzaloAcost4_Integraci-n-Continua&metric=coverage)](https://sonarcloud.io/summary/new_code?id=GonzaloAcost4_Integraci-n-Continua)
 la gloria es de dios
-![Uploading image.png…]()
+![image](https://github.com/user-attachments/assets/a0fbdcfb-67cc-45c7-ad3b-0573e568b5bb)
