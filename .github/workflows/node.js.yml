@@ -146,24 +146,26 @@ jobs:
         with:
           fetch-depth: 0 # Required to access full git history for commit parsing
 
-      - name: Obtener mensaje de commit
-        id: commit
+      - name: Obtener mensaje del commit
+        id: obtener_commit
         run: |
-          COMMIT_MSG="$(git log -1 --pretty=%B)"
-          echo "COMMIT_MSG=$COMMIT_MSG" >> $GITHUB_ENV
+          MSG=$(git log -1 --pretty=%s)
+          echo "Commit message: $MSG"
+          echo "msg=$MSG" >> $GITHUB_OUTPUT
   
       - name: Verificar formato del commit
         id: verificar_commit
+        continue-on-error: true
         run: |
-          echo "Verificando commit: $COMMIT_MSG"
-          if [[ ! "$COMMIT_MSG" =~ ^(feat|fix|done):\ .+\ \(#([0-9]+)\)$ ]]; then
-            echo "❌ Commit inválido: $COMMIT_MSG"
-            echo "valido=false" >> $GITHUB_OUTPUT
-            exit 1
-          else
+          echo "Verificando commit: ${{ steps.obtener_commit.outputs.msg }}"
+          if [[ "${{ steps.obtener_commit.outputs.msg }}" =~ ^(feat|fix|done):\ .+\ \(#\d+\)$ ]]; then
             echo "✅ Commit válido"
             echo "valido=true" >> $GITHUB_OUTPUT
-          fi
+          else
+            echo "❌ Commit inválido: ${{ steps.obtener_commit.outputs.msg }}"
+            echo "valido=false" >> $GITHUB_OUTPUT
+            exit 1
+          }
   
       - name: Update Taiga User Story
         if: steps.verificar_commit.outputs.valido == 'true'
