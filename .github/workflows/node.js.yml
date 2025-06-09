@@ -161,6 +161,6 @@ jobs:
           token: ${{ secrets.SLACK_BOT_TOKEN }}
           payload: >
             {
-              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
-              "text": "📋 *Actualización de Taiga* \n• Estado: *${{ job.status }}* \n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>"
+              "channel": "${{ secrets.SLACK_CHANNEL_ID2 }}",
+              "text": "📋 *Actualización de Taiga* \n• Estado: *${{ job.status }}* \n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>\n• 🔗 <https://tree.taiga.io/project/gonzaloacost4-integracioncontinua/kanban|Ver tablero de Kanban>"
             }
