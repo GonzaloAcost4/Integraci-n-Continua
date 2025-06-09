@@ -5,7 +5,7 @@ describe('ordenarPorPrecio', () => {
     it('ordena prendas del menor al mayor precio', () => {
         const lista = [
             { nombre: 'Camisa', precio: 50 },
-            { nombre: 'Pantalon', precio: 20 },
+            { nombre: 'Pantalón', precio: 20 },
             { nombre: 'Abrigo', precio: 200 },
             { nombre: 'Zapatos', precio: 1000 },
         ];
@@ -13,7 +13,7 @@ describe('ordenarPorPrecio', () => {
         const resultado = ordenarPorPrecio(lista);
 
         expect(resultado).toEqual([
-            { nombre: 'Pantalon', precio: 20 },
+            { nombre: 'Pantalón', precio: 20 },
             { nombre: 'Camisa', precio: 50 },
             { nombre: 'Abrigo', precio: 200 },
             { nombre: 'Zapatos', precio: 1000 },
