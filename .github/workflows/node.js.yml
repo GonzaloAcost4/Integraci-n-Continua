@@ -155,12 +155,14 @@ jobs:
 
       - name: Notificar a Slack (Taiga)
         if: always()
-        uses: slackapi/slack-github-action@v2.1.0
-        with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload: >
-            {
-              "channel": "${{ secrets.SLACK_CHANNEL_ID2 }}",
-              "text": "📋 *Actualización de Taiga* \n• Estado: *${{ job.status }}* \n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>\n• 🔗 <https://tree.taiga.io/project/gonzaloacost4-integracioncontinua/kanban|Ver tablero de Kanban>"
-            }
+        run: |
+          if [[ "${{ job.status }}" == "failure" ]]; then
+            TEXT="❌ *Falló la actualización de Taiga*\n• Posible causa: commit mal formado\n• Formato esperado: \`tipo: mensaje (#ID)\`\n• Ejemplo: \`feat: agregar login (#12)\`\n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>\n• 🔗 <https://tree.taiga.io/project/gonzaloacost4-integracioncontinua/kanban|Ver Kanban>"
+          else
+            TEXT="📋 *Actualización de Taiga completada*\n• Estado: *success*\n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>\n• 🔗 <https://tree.taiga.io/project/gonzaloacost4-integracioncontinua/kanban|Ver Kanban>"
+          fi
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"channel\":\"${{ secrets.SLACK_CHANNEL_ID }}\",\"text\":\"$TEXT\"}" \
+          https://slack.com/api/chat.postMessage \
+          -H "Authorization: Bearer ${{ secrets.SLACK_BOT_TOKEN }}"
+
