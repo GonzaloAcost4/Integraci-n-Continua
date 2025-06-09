@@ -162,7 +162,7 @@ jobs:
             TEXT="📋 *Actualización de Taiga completada*\n• Estado: *success*\n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>\n• 🔗 <https://tree.taiga.io/project/gonzaloacost4-integracioncontinua/kanban|Ver Kanban>"
           fi
           curl -X POST -H 'Content-type: application/json' \
-          --data "{\"channel\":\"${{ secrets.SLACK_CHANNEL_ID }}\",\"text\":\"$TEXT\"}" \
+          --data "{\"channel\":\"${{ secrets.SLACK_CHANNEL_ID2 }}\",\"text\":\"$TEXT\"}" \
           https://slack.com/api/chat.postMessage \
           -H "Authorization: Bearer ${{ secrets.SLACK_BOT_TOKEN }}"
 
