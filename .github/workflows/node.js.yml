@@ -133,3 +133,19 @@ jobs:
               "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
               "text": "🚀 *Deploy completado en producción*\n• Estado: *${{ job.status }}*\n• Autor: <${{ github.event.sender.html_url }}|${{ github.actor }}>\n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>\n• 🔗 <https://integraci-n-continua-b4oaxyj28-gonzaloacost4s-projects.vercel.app/|Ver sitio desplegado>"
             }
+ 
+  update-taiga:
+    name: updatear taiga
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to access full git history for commit parsing
+                
+      - name: Update Taiga User Story
+        uses: lauacosta/backlogr-action@v0.0.2
+        with:
+          taiga-username: ${{ secrets.TAIGA_USERNAME }}
+          taiga-password: ${{ secrets.TAIGA_PASSWORD }}
+          project-name: ${{ secrets.PROJECT_NAME }}
