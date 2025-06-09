@@ -153,6 +153,16 @@ jobs:
           taiga-password: ${{ secrets.TAIGA_PASSWORD }}
           project-name: ${{ secrets.PROJECT_NAME }}
 
+      - name: Verificar commit válido y forzar error si no
+        run: |
+          LOG=$(tail -n 10 $GITHUB_STEP_SUMMARY)
+          echo "Últimas líneas del log:"
+          echo "$LOG"
+          if echo "$LOG" | grep -q "Invalid commit format"; then
+            echo "❌ Commit inválido, fallando el job"
+            exit 1
+          fi
+        
       - name: Notificar a Slack (Taiga)
         if: always()
         run: |
