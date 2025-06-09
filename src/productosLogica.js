@@ -4,7 +4,7 @@ export const productos = [
     { nombre: 'Camisa', precio: 50 },
     { nombre: 'Zapatos', precio: 1000 },
 ];
-
+#
 export function ordenarPorPrecio(lista) {
     return [...lista].sort((a, b) => a.precio - b.precio);
 }
