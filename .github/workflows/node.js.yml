@@ -204,10 +204,10 @@ jobs:
     
     - name: Notificar estado final en Slack
       if: always()
-      uses: slackapi/slack-github-action@v2.1.0
+      uses: slackapi/slack-github-action@v2.1.0 
       with:
         method: chat.postMessage
-        token: ${{ secrets.SLACK_BOT_TOKEN }}
+        token: ${{ secrets.SLACK_BOT_TOKEN }} #token
         payload: >
           {
             "channel": "${{ secrets.SLACK_CHANNEL_ID2 }}",
