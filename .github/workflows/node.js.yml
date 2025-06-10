@@ -142,53 +142,74 @@ jobs:
     runs-on: ubuntu-latest
     needs: deploy
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Required to access full git history for commit parsing
-
-      - name: Obtener mensaje del commit
-        id: verificar_commit
-        run: |
-          COMMIT_MSG=$(git log -1 --pretty=%s)
-          echo "Verificando commit: $COMMIT_MSG"
-          if [[ "$COMMIT_MSG" =~ ^(feat|fix|done):\ .+\ \(#([0-9]+)\)$ ]]; then
-            echo "✅ Commit válido: $COMMIT_MSG"
-            echo "valido=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "❌ Commit inválido: $COMMIT_MSG"
-            echo "valido=false" >> "$GITHUB_OUTPUT"
-          fi
-  
-      - name: Actualizar Taiga (solo si es válido)
-        if: steps.verificar_commit.outputs.valido == 'true'
-        uses: lauacosta/backlogr-action@v0.0.2
-        with:
-          taiga-username: ${{ secrets.TAIGA_USERNAME }}
-          taiga-password: ${{ secrets.TAIGA_PASSWORD }}
-          project-name: ${{ secrets.PROJECT_NAME }}
-  
-      # ✅ Notificación de éxito (formato correcto)
-      - name: Notificar a Slack (commit válido)
-        if: steps.verificar_commit.outputs.valido == 'true'
-        uses: slackapi/slack-github-action@v2.1.0
-        with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload: >
-            {
-              "channel": "${{ secrets.SLACK_CHANNEL_ID2 }}",
-              "text": "✅ *Actualización de Taiga completada*\n• Estado: *success*\n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>\n• 🔗 <https://tree.taiga.io/project/gonzaloacost4-integracioncontinua/kanban|Ver Kanban>"
-            }
-  
-      # ❌ Notificación de error (formato incorrecto)
-      - name: Notificar a Slack (commit inválido)
-        if: steps.verificar_commit.outputs.valido == 'false'
-        uses: slackapi/slack-github-action@v2.1.0
-        with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload: >
-            {
-              "channel": "${{ secrets.SLACK_CHANNEL_ID2 }}",
-              "text": "❌ *Falló la actualización de Taiga - Formato de commit inválido*\n• Estado: *failed*\n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>\n• 🔗 <https://tree.taiga.io/project/gonzaloacost4-integracioncontinua/kanban|Ver Kanban>"
-            }
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Necesario para ver el historial completo
+    
+    # Verificamos el formato del commit
+    - name: Verificar formato del commit
+      id: verificar_commit
+      run: |
+        COMMIT_MSG=$(git log -1 --pretty=%s)
+        echo "Mensaje de commit: $COMMIT_MSG"
+    
+        if [[ "$COMMIT_MSG" =~ ^Merge\ branch ]]; then
+          echo "🔄 Commit de merge detectado, se saltea verificación"
+          echo "valido=merge" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+    
+        if [[ "$COMMIT_MSG" =~ ^(feat|fix|done):\ .+\ \(#([0-9]+)\)$ ]]; then
+          echo "✅ Commit válido"
+          echo "valido=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "❌ Formato inválido"
+          echo "valido=false" >> "$GITHUB_OUTPUT"
+        fi
+    
+    # Actualización en Taiga solo si el commit es válido o merge
+    - name: Actualizar Taiga
+      if: steps.verificar_commit.outputs.valido != 'false'
+      id: taiga
+      uses: lauacosta/backlogr-action@v0.0.2
+      continue-on-error: true
+      with:
+        taiga-username: ${{ secrets.TAIGA_USERNAME }}
+        taiga-password: ${{ secrets.TAIGA_PASSWORD }}
+        project-name: ${{ secrets.PROJECT_NAME }}
+    
+    # Determinar si falló la actualización
+    - name: Verificar estado de Taiga
+      if: steps.verificar_commit.outputs.valido != 'false'
+      run: |
+        if [ "${{ steps.taiga.outputs.success }}" == "true" ]; then
+          echo "✅ User Story #${{ steps.taiga.outputs.user-story-id }} → ${{ steps.taiga.outputs.action-taken }}"
+        else
+          echo "❌ Falló la actualización de Taiga"
+          exit 1
+        fi
+    
+    # Notificación si el commit fue inválido
+    - name: Notificar formato inválido en Slack
+      if: steps.verificar_commit.outputs.valido == 'false'
+      uses: slackapi/slack-github-action@v2.1.0
+      with:
+        method: chat.postMessage
+        token: ${{ secrets.SLACK_BOT_TOKEN }}
+        payload: >
+          {
+            "channel": "${{ secrets.SLACK_CHANNEL_ID2 }}",
+            "text": "❌ *Falló la actualización de Taiga - Formato de commit inválido*\n• Estado: failed\n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>\n• 🔗 <https://tree.taiga.io/project/gonzaloacost4-integracioncontinua/kanban|Ver Kanban>"
+          }
+    
+    - name: Notificar estado final en Slack
+      if: always()
+      uses: slackapi/slack-github-action@v2.1.0
+      with:
+        method: chat.postMessage
+        token: ${{ secrets.SLACK_BOT_TOKEN }}
+        payload: >
+          {
+            "channel": "${{ secrets.SLACK_CHANNEL_ID2 }}",
+            "text": "${{ job.status == 'success' && steps.verificar_commit.outputs.valido != 'false' && steps.taiga.outputs.success == 'true' && '✅ Actualización de Taiga completada' || '❌ Falló la actualización de Taiga' }}\n• Estado: ${{ job.status }}\n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>\n• 🔗 <https://tree.taiga.io/project/gonzaloacost4-integracioncontinua/kanban|Ver Kanban>"
+          }
