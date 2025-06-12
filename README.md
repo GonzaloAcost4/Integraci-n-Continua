@@ -4,5 +4,4 @@
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=GonzaloAcost4_Integraci-n-Continua&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=GonzaloAcost4_Integraci-n-Continua)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=GonzaloAcost4_Integraci-n-Continua&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=GonzaloAcost4_Integraci-n-Continua)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GonzaloAcost4_Integraci-n-Continua&metric=coverage)](https://sonarcloud.io/summary/new_code?id=GonzaloAcost4_Integraci-n-Continua)
-🔗 [Acceder a la app desplegada](https://integraci-n-continua-gonzaloacost4s-projects.vercel.app/) parce
-![image](https://github.com/user-attachments/assets/a0fbdcfb-67cc-45c7-ad3b-0573e568b5bb)
+ 🔗 [Acceder a la app desplegada](https://integraci-n-continua-gonzaloacost4s-projects.vercel.app/) 
