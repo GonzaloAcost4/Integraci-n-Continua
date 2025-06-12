@@ -1,5 +1,5 @@
 export const productos = [
-    { nombre: 'Varita mágica', precio: 20 },
+    { nombre: 'Varita mágica', precio: 2000 },
     { nombre: 'Capa de invisibilidad', precio: 200 },
     { nombre: 'Escoba Nimbus 2000', precio: 50 },
     { nombre: 'Giratiempos', precio: 1000 },
