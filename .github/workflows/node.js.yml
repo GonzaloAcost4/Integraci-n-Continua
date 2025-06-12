@@ -226,7 +226,7 @@ jobs:
           fetch-depth: 0 # Necesario para ver el historial completo
           
       - name: Lighthouse CI Slack Reporter
-        uses: MateuszMichalowski/lhci-slack-reporter@v1
+        uses: MateuszMichalowski/lhci-slack-reporter@v4
         with:
           # URLs desplegadas en producción
           urls: https://integraci-n-continua-gonzaloacost4s-projects.vercel.app
