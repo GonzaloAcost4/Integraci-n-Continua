@@ -5,7 +5,7 @@
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=GonzaloAcost4_Integraci-n-Continua&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=GonzaloAcost4_Integraci-n-Continua)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=GonzaloAcost4_Integraci-n-Continua&metric=coverage)](https://sonarcloud.io/summary/new_code?id=GonzaloAcost4_Integraci-n-Continua)
 
- 🧙 Catálogo de Productos Mágicos - Hogwarts Storee
+ 🧙 Catálogo de Productos Mágicos - Hogwarts Storeee
 
 Este proyecto es una *aplicación web simple* que muestra un listado de productos mágicos del mundo de Harry Potter. Permite ordenarlos por precio y está desplegado con Vercel.
 
