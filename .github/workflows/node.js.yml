@@ -204,7 +204,7 @@ jobs:
 
     
     - name: Notificar estado final en Slack
-      if: always()
+      if: steps.verificar_commit.outputs.valido == 'true'
       uses: slackapi/slack-github-action@v2.1.0 
       with:
         method: chat.postMessage
