@@ -217,6 +217,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Clean npm cache
+        run: npm cache clean --force
+        
       - name: Lighthouse CI Slack Reporter
         uses: MateuszMichalowski/lhci-slack-reporter@v1.0.4
         with:
