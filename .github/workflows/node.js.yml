@@ -215,33 +215,42 @@ jobs:
             "text": "${{ job.status == 'success' && steps.verificar_commit.outputs.valido != 'false' && steps.taiga.outputs.success == 'true' && '✅ Actualización de Taiga completada' || '❌ Falló la actualización de Taiga' }}\n• Estado: ${{ job.status }}\n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>\n• Mensaje de commit: ${{ github.event.head_commit.message }}\n• 🔗 <https://tree.taiga.io/project/gonzaloacost4-integracioncontinua/kanban|Ver Kanban>"
           }
 
-    - name: Lighthouse CI Slack Reporter
-      if: github.ref == 'refs/heads/main'
-      uses: MateuszMichalowski/lhci-slack-reporter@v1
-      with:
-        # URLs desplegadas en producción
-        urls: https://integraci-n-continua-gonzaloacost4s-projects.vercel.app
 
-        # Dispositivos: móvil y escritorio
-        device_types: 'mobile,desktop'
-
-        # Categorías a testear
-        categories: 'performance,accessibility,best-practices,seo'
-
-        # Webhook de Slack
-        slack_webhook_url: ${{ secrets.SLACK_BOT_TOKEN }}
-
-        # Canal opcional si usás webhook
-        slack_channel: 'lighthouse-reports'
-
-        # Título del reporte
-        slack_title: '📊 Lighthouse CI Report - Producción'
-
-        # Fallar si alguna categoría da menos de 70
-        fail_on_score_below: '70'
-
-        # Flags personalizados de Chrome
-        chrome_flags: '--no-sandbox --headless --disable-gpu --disable-dev-shm-usage'
-
-        # Timeout por URL
-        timeout: '90'
+  lighthouse-ci:
+      name: lighthouse ci
+      runs-on: ubuntu-latest
+      needs: deploy
+      steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Necesario para ver el historial completo
+          
+      - name: Lighthouse CI Slack Reporter
+        uses: MateuszMichalowski/lhci-slack-reporter@v1
+        with:
+          # URLs desplegadas en producción
+          urls: https://integraci-n-continua-gonzaloacost4s-projects.vercel.app
+  
+          # Dispositivos: móvil y escritorio
+          device_types: 'mobile,desktop'
+  
+          # Categorías a testear
+          categories: 'performance,accessibility,best-practices,seo'
+  
+          # Webhook de Slack
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+  
+          # Canal opcional si usás webhook
+          slack_channel: 'lighthouse-reports'
+  
+          # Título del reporte
+          slack_title: '📊 Lighthouse CI Report - Producción'
+  
+          # Fallar si alguna categoría da menos de 70
+          fail_on_score_below: '70'
+  
+          # Flags personalizados de Chrome
+          chrome_flags: '--no-sandbox --headless --disable-gpu --disable-dev-shm-usage'
+  
+          # Timeout por URL
+          timeout: '90'
