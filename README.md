@@ -33,6 +33,8 @@ Este proyecto es una *aplicación web simple* que muestra un listado de producto
 - CSS
 - JavaScript
 - Vite
+- Vitest
+- Github
 - GitHub Actions (CI/CD)
 - Vercel (despliegue automático)
 - Slack Notifications (Integración para alertas de commits y despliegue)
