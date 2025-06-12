@@ -9,7 +9,7 @@
 
 Este proyecto es una *aplicación web simple* que muestra un listado de productos mágicos del mundo de Harry Potter. Permite ordenarlos por precio y está desplegado con Vercel.
 
-![Hogwars Store](https://integraci-n-continua-gonzaloacost4s-projects.vercel.app/hogwarts-preview.png)
+[Hogwars Store](https://integraci-n-continua-gonzaloacost4s-projects.vercel.app/hogwarts-preview.png)
 
 ✨ Funcionalidades
 
