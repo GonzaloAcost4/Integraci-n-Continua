@@ -226,6 +226,7 @@ jobs:
         uses: MateuszMichalowski/lhci-slack-reporter@v1.0.4
         with:
           urls: 'https://integraci-n-continua-gonzaloacost4s-projects.vercel.app/'
-          slack_channel: $ {{ secrets.SLACK_CHANNEL_ID3 }} 
-          slack_token: $ {{ secrets.SLACK_BOT_TOKEN }} 
-          
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          slack_channel: 'lighthouse-reports'
+          slack_title: '📊 Lighthouse CI Report - Producción'
+          chrome_flags: '--no-sandbox --headless --disable-gpu --disable-dev-shm-usage'
