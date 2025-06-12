@@ -1,8 +1,8 @@
 export const productos = [
-    { nombre: 'Pantalooon', precio: 20 },
-    { nombre: 'Abrigo', precio: 200 },
-    { nombre: 'Camisa', precio: 50 },
-    { nombre: 'Zapatos', precio: 1000 },
+    { nombre: 'Varita mágica', precio: 20 },
+    { nombre: 'Capa de invisibilidad', precio: 200 },
+    { nombre: 'Escoba Nimbus 2000', precio: 50 },
+    { nombre: 'Giratiempos', precio: 1000 },
 ];
 
 export function ordenarPorPrecio(lista) {

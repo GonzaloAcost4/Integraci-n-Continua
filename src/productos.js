@@ -5,6 +5,7 @@ function mostrarProductos(lista) {
     contenedor.innerHTML = '';
     lista.forEach(p => {
         const div = document.createElement('div');
+        div.className = 'producto'; // Asegura que cada producto tenga la clase correcta
         div.textContent = `${p.nombre}: $${p.precio}`;
         contenedor.appendChild(div);
     });
