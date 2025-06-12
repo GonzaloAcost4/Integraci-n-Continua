@@ -217,31 +217,14 @@ jobs:
 
 
   lighthouse:
-    name: Lighthouse CI
     runs-on: ubuntu-latest
-    needs: deploy
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Instalar Lighthouse CI
-        run: npm install -g @lhci/cli
-
-      - name: Ejecutar Lighthouse en producción
-        run: |
-          lhci autorun --collect.url=https://integraci-n-continua-gonzaloacost4s-projects.vercel.app/ \
-                       --collect.numberOfRuns=1 \
-                       --upload.target=temporary-public-storage \
-                       --collect.settings.chromeFlags="--no-sandbox"
-
-      - name: Notificar resultado a Slack
-        if: always()
-        uses: slackapi/slack-github-action@v2.1.0
+      
+      - name: Lighthouse CI Slack Reporter
+        uses: MateuszMichalowski/lhci-slack-reporter@v1.0.4
         with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload: >
-            {
-              "channel": "${{ secrets.SLACK_CHANNEL_ID3 }}",
-              "text": "📊 *Lighthouse ejecutado en producción*\n• URL: <https://integraci-n-continua-gonzaloacost4s-projects.vercel.app/>\n• Estado: *${{ job.status }}*\n• Commit: <${{ github.event.head_commit.url }}|${{ github.sha }}>"
-            }
+          urls: 'https://integraci-n-continua-gonzaloacost4s-projects.vercel.app/'
+          slack_channel: $ {{ secrets.SLACK_CHANNEL_ID3 }} 
+          slack_token: $ {{ secrets.SLACK_BOT_TOKEN }} 
+          
