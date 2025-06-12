@@ -17,17 +17,17 @@ Este proyecto es una *aplicación web simple* que muestra un listado de producto
 
 ✨ Funcionalidades
 
-- 🎩 Lista de productos mágicos con nombre y precio.
-- 🧹 Botón para ordenar los productos por precio (de menor a mayor).
-- 📜 Estilo temático inspirado en Hogwarts.
-- 🌐 Despliegue automático en Vercel.
+-  Lista de productos mágicos.
+-  Botón para ordenar los productos por precio de menor a mayor.
+-  Pruebas automáticas mediante Vitest.
+-  Despliegue automático en Vercel.
 
-## 🚀 Demo
+## Producción
 
 🔗 **URL de Producción:**  
 [https://integraci-n-continua-gonzaloacost4s-projects.vercel.app](https://integraci-n-continua-gonzaloacost4s-projects.vercel.app)
 
-## 🛠️ Tecnologías mágicas utilizadas
+## Tecnologías mágicas utilizadas
 
 - HTML
 - CSS
