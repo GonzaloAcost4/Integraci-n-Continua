@@ -7,7 +7,7 @@
 
  🧙 Catálogo de Productos Mágicos - Hogwarts Store
 
-Este proyecto es una *aplicación web simple* que muestra un listado de productos mágicos. Permite ordenarlos por precio y está desplegado con Vercel.
+Este proyecto es una *aplicación web simple* que muestra un listado de productos mágicos para la materia Ingeniería y Calidad de Software. Permite ordenarlos por precio y está desplegado con Vercel.
 
 *Entorno de CI/CD:*
 
